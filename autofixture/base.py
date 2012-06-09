@@ -376,7 +376,14 @@ class AutoFixtureBase(object):
             else:
                 auto_created_through_model = True
         else:
-            auto_created_through_model = through._meta.auto_created
+			"""
+				Change to deal with m2m problem: 
+
+				$ ./manage.py loadtestdata auth.User:10
+				AttributeError: 'NoneType' object has no attribute '_meta'
+			"""
+			auto_created_through_model = getattr(getattr(through, '_meta', None), 'auto_created', False)
+            #auto_created_through_model = through._meta.auto_created
 
         if auto_created_through_model:
             return self.process_field(instance, field)
